@@ -1,5 +1,6 @@
 from google.adk import Agent
 
+
 telemetry = {
     "eventTime": "2025-06-01T00:00:00Z",
     "dimensions": [
@@ -14,6 +15,6 @@ telemetry = {
 predictive_maintenance_agent = Agent(
     model="gemini-2.0-flash-001",
     name="PredictiveMaintenanceAgent",
-    instruction=f"Detected anomaly: {telemetry}. Flag the machine id",
+    instruction=f"Detect anomalies in the data. Flag the machine id as 'machine-01' and save to state",
     output_key="machineId",
 )
