@@ -1,0 +1,28 @@
+# tools.yaml
+sources:
+  bq-dev:                         
+    kind: bigquery
+    project: hacker2025-team-90-dev  
+    location: us-central1                    
+
+tools:
+  get-sensor-schema:
+    kind: bigquery-get-table-info
+    source: bq-dev
+    #dataset_id: SyntheticDatasetSimple
+    #table_id: SensorReadings
+    description: |
+      Return the column-level schema for my
+      hacker2025-team-90-dev:SyntheticDatasetSimple.SensorReadings table.
+
+  bigquery_get_dataset_info:
+    kind: bigquery-get-dataset-info
+    source: bq-dev
+    #dataset_id: SyntheticDatasetSimple
+    description: |
+      Return all metadata (location, default expiration, labels, etc.) for my
+      hacker2025-team-90-dev:SyntheticDatasetSimple dataset.
+toolsets:                         
+  default:
+    - get-sensor-schema
+    - bigquery_get_dataset_info
