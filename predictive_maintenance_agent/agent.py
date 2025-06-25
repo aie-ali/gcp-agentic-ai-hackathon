@@ -2,6 +2,11 @@ from google.adk import Agent
 from google.adk.tools.agent_tool import AgentTool, ToolContext
 from typing import List
 from contracts import AnomalyEvent, Severity
+from google.adk.tools import VertexAiSearchTool
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 telemetry = {
     "eventTime": "2025-06-01T00:00:00Z",
@@ -16,6 +21,8 @@ telemetry = {
 
 
 ### Tools ### 
+rag_tool = VertexAiSearchTool(data_store_id=os.getenv('DATASTORE_ID'))
+
 
 def save_machineID_to_state(
     tool_context: ToolContext,
@@ -51,7 +58,7 @@ def detect_anomalies(tool_context: ToolContext):
         rows = tool_context.state["current_slice"] # From fake data agent
         events = []
         for r in rows:
-            if r["anomaly_score"] > 0.8:
+            if r["anomaly_score"] > tool_context.state["anomaly_criteria"]:
                 sev = Severity.CRITICAL if r["anomaly_score"]>0.95 else Severity.HIGH
                 events.append(AnomalyEvent(
                     machine_id=r["machine_id"],
@@ -78,10 +85,11 @@ def create_predictive_maintenance_agent():
     model="gemini-2.0-flash-001",
     name="PredictiveMaintenanceAgent",
     instruction=f"""Detect anomalies in the data.
+    First identify anomaly criteria using rag_tool. Set that value in state["anomaly_criteria"]. Next 
     Call detect_anomalies tool to analyse the telemetry data in state["current_slice"]. 
     If an anomaly is found, use the 'save_machineID_to_state' tool to add the affected machine to the field 'machineID'.  
     If tool returns 'success', then pass onto notification agent.""",
-    tools=[detect_anomalies, save_machineID_to_state]
+    tools=[detect_anomalies, save_machineID_to_state, rag_tool]
     )
     return predictive_maintenance_agent
 
